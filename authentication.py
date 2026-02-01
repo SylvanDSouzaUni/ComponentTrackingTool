@@ -1,12 +1,30 @@
 from database import get_connection
 from repositories import (create_user,
-                          select_user)
+                          return_user)
 from models import (Roles,
                     User)
 
 import hashlib, secrets
-from sqlite3 import IntegrityError
 
+
+#Structure to store actions that each role is permitted to do
+PERMISSIONS = {
+    'Admin':     {},
+    'Engineer':  {},
+    'Warehouse': {},
+    'Guest': {}
+}
+
+
+
+
+
+#Function which creates a starting admin if there are no users in the user table
+def create_starting_admin():
+    with get_connection() as connection:
+        row = connection.execute("SELECT count(*) as total FROM users").fetchone()
+    if row["total"] == 0:
+        create_user("admin", "First Admin", hash_password("admin123"), Roles.ADMIN.value)
 
 #Function to hash passwords
 def hash_password(password):
@@ -28,23 +46,17 @@ def check_password(password_attempt, stored):
     else:
         return False
 
-def create_starting_admin():
-    with get_connection() as connection:
-        row = connection.execute("SELECT count(*) as total FROM users").fetchone()
-    if row["total"] == 0:
-        create_user("admin", "First Admin", hash_password("admin123"), Roles.ADMIN.value)
-
-
+#Function to log into system.
 def login():
     username = input("Username: ")
     password = input("Password: ")
-    selection = select_user(username)
+    selection = return_user(username)
     if not selection:
-        print("User not found")
+        print("[ERROR] User not found \n")
         return None
     if not check_password(password, selection.password_hash):
-        print("Incorrect Password")
+        print("[ERROR] Incorrect Password \n")
         return None
     session_user = User(selection.display_name, selection.username, selection.role)
-    print("Hi {name}! Welcome to the Component Tracking Tool".format(name=session_user.display_name))
+    print(f"[CONSOLE] Hi {session_user.display_name}! Welcome to the Component Tracking Tool")
     return session_user
