@@ -1,6 +1,6 @@
 from database import create_schema, get_connection
 from authentication import create_starting_admin, login, create_user
-
+from menu import main_menu
 
 def main_loop():
 
@@ -9,9 +9,12 @@ def main_loop():
 
     while True:
         print("[CONSOLE] PLEASE LOG IN WITH YOUR CREDENTIALS")
-        user = None
-        while not user:
-            user = login()
+        session_user = None
+        while not session_user:
+            session_user = login()
+
+        current_status = main_menu()
+
 
 if __name__ == "__main__":
     main_loop()
