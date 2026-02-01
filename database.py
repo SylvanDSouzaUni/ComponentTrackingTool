@@ -50,13 +50,13 @@ def create_schema():
                 
             create table if not exists requests (
                 request_id integer primary key autoincrement,
-                quantity integer not null check (quantity > 0),
-                name text not null,
+                component_name text not null,
                 requested_by text not null,
                 requested_at float not null,
                 sku integer,
                 reviewed_by text,
                 reviewed_at float,
+                request_state text default 'REQUESTED' check (request_state IN ('REQUESTED', 'ACCEPTED', 'REJECTED')),
                 foreign key (requested_by) references users(username),
                 foreign key (reviewed_by) references users(username)
             );
@@ -66,8 +66,7 @@ def create_schema():
                 timestamp float not null,
                 actor text not null,
                 actor_role text not null check (actor_role IN ('ADMIN', 'ENGINEER', 'WAREHOUSE')),
-                action text not null,
-                foreign key (actor) references users(username)
+                action text not null
             );
         
 
