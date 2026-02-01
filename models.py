@@ -7,7 +7,6 @@ class Roles(Enum):
     WAREHOUSE = "WAREHOUSE"
     ENGINEER = "ENGINEER"
     ADMIN = "ADMIN"
-    GUEST = "GUEST"
 
 class ConditionStatus(Enum):
     FUNCTIONAL = "FUNCTIONAL"
@@ -25,6 +24,10 @@ class OrderStatus(Enum):
     ORDERED = "ORDERED"
     RECEIVED = "RECEIVED"
 
+class RequestStatus(Enum):
+    REQUESTED = "REQUESTED"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
 
 
 #CLASS DEFINITIONS
@@ -46,8 +49,8 @@ class Component:
                  sku               : int,
                  component_name    : str,
                  unit              : str,
-                 min_stock         : int,
                  stock             : int,
+                 min_stock         : int,
                  condition_status  : ConditionStatus
                  ):
 
@@ -63,7 +66,7 @@ class Component:
 
 class Order:
     def __init__(self,
-                 order_id        : str,
+                 order_id        : int,
                  sku             : int,
                  quantity        : int,
                  ordered_at      : float,
@@ -84,24 +87,24 @@ class Order:
 
 class Request:
     def __init__(self,
-                 request_id      : str,
-                 quantity        : int,
-                 name            : str,
+                 request_id      : int,
+                 component_name  : str,
                  requested_by    : str,
                  requested_at    : Optional[float] = None,
                  sku             : Optional[int] = None,
                  reviewed_by     : Optional[str] = None,
-                 reviewed_at     : Optional[float] = None
+                 reviewed_at     : Optional[float] = None,
+                 request_state   : RequestStatus = RequestStatus.REQUESTED,
                  ):
 
                     self.request_id = request_id
-                    self.quantity = quantity
-                    self.name = name
+                    self.component_name = component_name
                     self.requested_by = requested_by
                     self.requested_at = requested_at
                     self.sku = sku
                     self.reviewed_by = reviewed_by
                     self.reviewed_at = reviewed_at
+                    self.request_state = request_state
 
 class AuditLogEntry:
     def __init__(self, audit_id: int, timestamp: float, actor: str, role: Roles, action: str):
