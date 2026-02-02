@@ -9,15 +9,49 @@ import hashlib, secrets
 
 #Structure to store actions that each role is permitted to do
 PERMISSIONS = {
-    'Admin':     {},
-    'Engineer':  {},
-    'Warehouse': {},
-    'Guest': {}
+    Roles.ADMIN: {
+        "CREATE_COMPONENT",
+        "UPDATE_COMPONENT",
+        "DELETE_COMPONENT",
+        "LIST_COMPONENTS",
+        "LIST_LOW_STOCK",
+        "CREATE_USER",
+        "DELETE_USER",
+        "LIST_USERS",
+        "CREATE_ORDER",
+        "RECEIVE_ORDER",
+        "LIST_ORDERS",
+        "CREATE_REQUEST",
+        "ACCEPT_REQUEST",
+        "REJECT_REQUEST",
+        "LIST_REQUESTS",
+        "LIST_AUDIT_LOGS",
+        "ADMIN_ONLY"
+    },
+    Roles.ENGINEER: {
+        "LIST_COMPONENTS",
+        "LIST_LOW_STOCK",
+        "CREATE_REQUEST",
+        "LIST_REQUESTS",
+        "LIST_ORDERS"
+    },
+    Roles.WAREHOUSE: {
+        "LIST_COMPONENTS",
+        "LIST_LOW_STOCK",
+        "CREATE_ORDER",
+        "RECEIVE_ORDER",
+        "LIST_ORDERS",
+        "LIST_REQUESTS"
+    }
 }
 
-
-
-
+#Funciton which checks if a user is permitted to complete an action.
+def permission_checker(user, action):
+    action = str(action).strip().upper()
+    if action in PERMISSIONS.get(user.role, set()):
+        return True
+    else:
+        return False
 
 #Function which creates a starting admin if there are no users in the user table
 def create_starting_admin():
