@@ -33,6 +33,7 @@ PERMISSIONS = {
         "LIST_LOW_STOCK",
         "CREATE_REQUEST",
         "LIST_REQUESTS",
+        "CREATE_ORDER"
         "LIST_ORDERS"
     },
     Roles.WAREHOUSE: {
@@ -41,7 +42,6 @@ PERMISSIONS = {
         "CREATE_ORDER",
         "RECEIVE_ORDER",
         "LIST_ORDERS",
-        "LIST_REQUESTS"
     }
 }
 
