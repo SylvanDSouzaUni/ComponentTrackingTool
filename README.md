@@ -15,4 +15,7 @@ Use Guide for Users:
    Username: admin
    Password: admin123
 4) Apon logging in, you will see a main menu screen.
-5) Follow the on screen prompts to complete your desired actions. You can navigate to desired actions by inputting the number corresponding to the action. Error messages and Console prompts are useful and intuitive, meaning use should be simple when following these prompts.
+5) Follow the on screen prompts to complete your desired actions. You can navigate to desired actions by inputting the number corresponding to the action. Error messages and Console prompts are useful and intuitive, meaning use should be simple when following these prompts. See the list of permitted actions for each role below:
+   Admin: All actions
+   Engineer: List components, list low stock components, create requests, list requests, list orders
+   Warehouse: List components, list low stock components, create order, receive order, list orders.
