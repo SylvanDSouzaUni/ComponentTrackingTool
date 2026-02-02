@@ -12,8 +12,7 @@ from authentication import hash_password
 
 from models import ConditionStatus, Roles, OrderStatus
 
-
-
+#----------------------------------------------------------AUDIT SERVICES----------------------------------------------------------#
 def audit(actor_username, action):
 
     try:
@@ -39,6 +38,39 @@ def audit(actor_username, action):
     except Exception as e:
         print(f"[ERROR] Audit failed: {e}")
 
+def list_audit_logs():
+    try:
+        logs = repositories.return_audit_logs()
+
+        if not logs:
+            print("\n[ERROR] No audit logs found.")
+            input("[CONSOLE] Press ENTER to continue...")
+            return
+
+        table = [
+            "AUDIT ID   | TIMESTAMP           | ACTOR            | ROLE       | ACTION",
+            "-" * 110
+        ]
+
+        for entry in logs:
+            readable_time = time.strftime(
+                "%d/%m/%Y %H:%M:%S",
+                time.localtime(float(entry.timestamp))
+            )
+
+            table.append(
+                f"{entry.audit_id:<9} | "
+                f"{readable_time:<19} | "
+                f"{entry.actor:<16} | "
+                f"{entry.actor_role.value:<10} | "
+                f"{entry.action}"
+            )
+
+        print("\n".join(table))
+        input("\n[CONSOLE] Press ENTER to continue...")
+
+    except Exception as e:
+        print(f"[ERROR] Failed to list audit logs: {e}")
 
 #----------------------------------------------------------COMPONENT SERVICES----------------------------------------------------------#
 def create_new_component(sku, name, unit, stock, min_stock, actor):
@@ -201,6 +233,38 @@ def update_component(actor, sku, name=None, unit=None, min_stock=None, stock=Non
 
     except Exception as e:
         print(f"[ERROR] Failed to update component: {e} \n")
+
+def list_low_stock_components():
+    try:
+
+        low_stock = repositories.return_low_stock_components()
+
+        if not low_stock:
+            print("\n[CONSOLE] No low stock components found.")
+            input("\n Press ENTER to continue...")
+            return
+
+        table = [
+            "SKU        | NAME                 | UNIT       | MINIMUM STOCK  | STOCK   | CONDITION        |",
+            "-" * 94
+        ]
+
+        for component in low_stock:
+            table.append(
+                f"{component.sku:<8}   | "
+                f"{component.component_name:<20} | "
+                f"{component.unit:<5}     | "
+                f"{component.min_stock:<3}            | "
+                f"{component.stock:<5}   | "
+                f"{component.condition_status.value:<5}         |"
+            )
+
+        print("\n".join(table))
+        input("\n Press ENTER to continue...")
+
+    except Exception as e:
+        print(f"[ERROR] Failed to list low stock components: {e}")
+
 #------------------------------------------------------------USER SERVICES-------------------------------------------------------------#
 def create_new_user(actor, username, name, password, role):
 
@@ -422,16 +486,20 @@ def list_orders():
         for order in orders:
 
             received_by = order.received_by if order.received_by else "PENDING..."
-            received_at = order.received_at if order.received_at else "N/A"
+            received_at = (
+                time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(float(order.received_at)))
+                if order.received_at else "N/A"
+            )
 
+            ordered_at = time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(float(order.ordered_at)))
             table.append(f"{order.order_id:<20}     | "
                          f"{order.sku:<18} | "
                          f"{order.quantity:<14} | "
                          f"{order.ordered_by:<18}     |"
-                         f"{order.ordered_at:<10}     |"
+                         f"{ordered_at:<19}     |"
                          f"{order.status.value:<18}     |"
                          f"{received_by:<18}     |"
-                         f"{received_at:<18}     |"
+                         f"{received_at:<19}     |"
                          )
 
         print("\n".join(table))
@@ -441,7 +509,6 @@ def list_orders():
         print(f"[ERROR] Failed to list orders: {e} \n")
 
 #-----------------------------------------------------COMPONENT REQUESTS SERVICES------------------------------------------------------#
-
 def create_request(actor, requested_by, component_name, sku = None):
 
     try:
@@ -641,15 +708,22 @@ def list_requests():
             component_name = request.component_name if request.component_name else "X"
             sku = request.sku if request.sku is not None else "X"
             reviewed_by = request.reviewed_by if request.reviewed_by else "PENDING..."
-            reviewed_at = request.reviewed_at if request.reviewed_at else "N/A"
+            requested_at = (
+                time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(float(request.requested_at)))
+                if request.requested_at else "N/A"
+            )
+            reviewed_at = (
+                time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(float(request.reviewed_at)))
+                if request.reviewed_at else "N/A"
+            )
 
             table.append(f"{request.request_id:<20}     | "
                          f"{component_name:<20} | "
                          f"{sku:<10}     | "
                          f"{request.requested_by:<10}     |"
-                         f"{request.requested_at:<10}     |"
+                         f"{requested_at:<19}     |"
                          f"{reviewed_by:<10}     |"
-                         f"{reviewed_at:<10}     |"
+                         f"{reviewed_at:<19}     |"
                          f"{request.request_state.value:<10}     |"
                          )
 
