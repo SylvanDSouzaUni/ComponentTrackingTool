@@ -14,6 +14,7 @@ from database import get_connection
 
 
 #------------------------------------USERS-------------------------------------#
+
 def return_user(username):
     with get_connection() as connection:
         row = connection.execute("select * from users where username = ?", (username,)).fetchone()
@@ -52,7 +53,6 @@ def delete_user(username):
     return cursor.rowcount > 0
 
 #----------------------------------COMPONENTS----------------------------------#
-
 def return_component(sku):
     with get_connection() as connection:
         row = connection.execute("select * from components where sku = ?", (sku,)).fetchone()
@@ -105,8 +105,25 @@ def update_component(update, values_for_update_list):
 
     return cursor.rowcount > 0
 
-#------------------------------------ORDERS-------------------------------------#
+def return_low_stock_components():
+    with get_connection() as connection:
+        rows = connection.execute(
+            "select * from components where stock < min_stock order by stock asc"
+        ).fetchall()
 
+    return [
+        Component(
+            row["sku"],
+            row["component_name"],
+            row["unit"],
+            row["stock"],
+            row["min_stock"],
+            ConditionStatus(row["condition_status"])
+        )
+        for row in rows
+    ]
+
+#------------------------------------ORDERS-------------------------------------#
 def return_order(order_id):
     with get_connection() as connection:
         row = connection.execute(
@@ -166,9 +183,7 @@ def receive_order(order_id, sku, new_stock, received_at, received_by):
 
     return (cursor1.rowcount > 0) and (cursor2.rowcount > 0)
 
-
 #-----------------------------------REQUESTS-------------------------------------#
-
 def return_request(request_id):
     with get_connection() as connection:
         row = connection.execute(
@@ -254,8 +269,6 @@ def accept_request(request_id, reviewed_by, reviewed_at):
     return cursor.rowcount > 0
 
 #------------------------------------AUDITS--------------------------------------#
-
-
 def create_audit_log(timestamp, actor, actor_role, action):
     with get_connection() as connection:
         cursor = connection.execute(
@@ -265,17 +278,10 @@ def create_audit_log(timestamp, actor, actor_role, action):
 
     return cursor.rowcount > 0
 
-
-def return_audit_logs(limit=None):
-    query = "select * from audit_logs order by audit_id desc"
-    params = ()
-
-    if limit is not None:
-        query += " limit ?"
-        params = (limit,)
+def return_audit_logs():
 
     with get_connection() as connection:
-        rows = connection.execute(query, params).fetchall()
+        rows = connection.execute("select * from audit_logs order by audit_id desc").fetchall()
 
     return [
         AuditLogEntry(
