@@ -13,7 +13,12 @@ def main_loop():
         while not session_user:
             session_user = login()
 
-        current_status = main_menu()
+        current_status = main_menu(session_user)
+
+        if current_status == "logged out":
+            continue
+        elif current_status == "exit":
+            break
 
 
 if __name__ == "__main__":
